@@ -5,7 +5,7 @@ def home_page(request):
     return HttpResponse("Добро пожаловать на главную страницу!")
 
 def about_page(request):
-    return HttpResponse("Страница о нас")
+    return HttpResponse("Страница о нас:")
 
 def student_profile(request, student_id):
     if student_id > 100:
