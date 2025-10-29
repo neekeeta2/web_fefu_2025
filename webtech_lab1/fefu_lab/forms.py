@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Feedback
+from .models import UserProfile, Feedback, Student
 
 class FeedbackForm(forms.Form):
     name = forms.CharField(
@@ -34,40 +34,60 @@ class FeedbackForm(forms.Form):
             raise ValidationError("Сообщение должно содержать минимум 10 символов")
         return message.strip()
 
-class RegistrationForm(forms.Form):
-    username = forms.CharField(
-        max_length=50,
-        label='Логин',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    email = forms.EmailField(
-        label='Email',
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
-    password = forms.CharField(
-        label='Пароль',
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
+
+class StudentRegistrationForm(forms.ModelForm):
     password_confirm = forms.CharField(
         label='Подтверждение пароля',
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
     
-    def clean_username(self):
-        username = self.cleaned_data['username']
-        if UserProfile.objects.filter(username=username).exists():
-            raise ValidationError("Пользователь с таким логином уже существует")
-        return username
+    class Meta:
+        model = Student
+        fields = ['first_name', 'last_name', 'email', 'birth_date', 'faculty']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Введите ваше имя'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Введите вашу фамилию'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'example@email.com'
+            }),
+            'birth_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'faculty': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+        }
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия', 
+            'email': 'Email',
+            'birth_date': 'Дата рождения',
+            'faculty': 'Факультет',
+        }
     
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if UserProfile.objects.filter(email=email).exists():
-            raise ValidationError("Пользователь с таким email уже существует")
-        return email
+    def clean_first_name(self):
+        first_name = self.cleaned_data['first_name']
+        if len(first_name.strip()) < 2:
+            raise ValidationError("Имя должно содержать минимум 2 символа")
+        return first_name.strip()
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data['last_name']
+        if len(last_name.strip()) < 2:
+            raise ValidationError("Фамилия должна содержать минимум 2 символа")
+        return last_name.strip()
     
     def clean_password(self):
-        password = self.cleaned_data['password']
-        if len(password) < 8:
+        password = self.cleaned_data.get('password')
+        if password and len(password) < 8:
             raise ValidationError("Пароль должен содержать минимум 8 символов")
         return password
     
@@ -80,6 +100,57 @@ class RegistrationForm(forms.Form):
             raise ValidationError("Пароли не совпадают")
         
         return cleaned_data
+
+# Оставляем старую форму для обратной совместимости, но не используем ее
+RegistrationForm = StudentRegistrationForm
+
+
+# class RegistrationForm(forms.Form):
+#     username = forms.CharField(
+#         max_length=50,
+#         label='Логин',
+#         widget=forms.TextInput(attrs={'class': 'form-control'})
+#     )
+#     email = forms.EmailField(
+#         label='Email',
+#         widget=forms.EmailInput(attrs={'class': 'form-control'})
+#     )
+#     password = forms.CharField(
+#         label='Пароль',
+#         widget=forms.PasswordInput(attrs={'class': 'form-control'})
+#     )
+#     password_confirm = forms.CharField(
+#         label='Подтверждение пароля',
+#         widget=forms.PasswordInput(attrs={'class': 'form-control'})
+#     )
+    
+#     def clean_username(self):
+#         username = self.cleaned_data['username']
+#         if UserProfile.objects.filter(username=username).exists():
+#             raise ValidationError("Пользователь с таким логином уже существует")
+#         return username
+    
+#     def clean_email(self):
+#         email = self.cleaned_data['email']
+#         if UserProfile.objects.filter(email=email).exists():
+#             raise ValidationError("Пользователь с таким email уже существует")
+#         return email
+    
+#     def clean_password(self):
+#         password = self.cleaned_data['password']
+#         if len(password) < 8:
+#             raise ValidationError("Пароль должен содержать минимум 8 символов")
+#         return password
+    
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         password = cleaned_data.get('password')
+#         password_confirm = cleaned_data.get('password_confirm')
+        
+#         if password and password_confirm and password != password_confirm:
+#             raise ValidationError("Пароли не совпадают")
+        
+#         return cleaned_data
     
 
 

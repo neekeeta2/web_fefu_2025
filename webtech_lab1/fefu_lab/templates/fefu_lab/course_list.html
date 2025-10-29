@@ -1,0 +1,51 @@
+
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}Курсы{% endblock %}
+{% block heading %}Наши курсы{% endblock %}
+
+{% block content %}
+<div class="course-list">
+    {% for course in courses %}
+    <div class="course-card">
+        <h3>{{ course.title }}</h3>
+        <div class="course-details">
+            <p><strong>Описание:</strong> {{ course.description }}</p>
+            <p><strong>Продолжительность:</strong> {{ course.duration }} часов</p>
+            <p><strong>Уровень:</strong> 
+                <span class="level-{{ course.level|lower }}">{{ course.get_level_display }}</span>
+            </p>
+            {% if course.instructor %}
+            <p><strong>Преподаватель:</strong> 
+                <span class="instructor-name">{{ course.instructor.full_name }}</span>
+            </p>
+            {% endif %}
+            <p><strong>Цена:</strong> 
+                <span class="{% if course.price == 0 %}price-free{% else %}price-paid{% endif %}">
+                    {% if course.price > 0 %}
+                        {{ course.price }} руб.
+                    {% else %}
+                        Бесплатно
+                    {% endif %}
+                </span>
+            </p>
+            <p><strong>Статус:</strong> 
+                <span class="{% if course.is_active %}status-active{% else %}status-inactive{% endif %}">
+                    {{ course.is_active|yesno:"Активен,Неактивен" }}
+                </span>
+            </p>
+            
+            <div style="margin-top: 15px; text-align: center;">
+                <a href="{% url 'enrollment' course.id %}" class="enroll-button">
+                    Записаться на курс
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="course-card">
+        <p>Курсы пока не добавлены.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

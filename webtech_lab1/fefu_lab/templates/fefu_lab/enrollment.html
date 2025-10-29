@@ -1,0 +1,74 @@
+
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="enrollment-container">
+    <div class="course-info">
+        <h3>Информация о курсе:</h3>
+        <div class="course-card">
+            <h4>{{ course.title }}</h4>
+            <p><strong>Описание:</strong> {{ course.description }}</p>
+            <p><strong>Продолжительность:</strong> {{ course.duration }} часов</p>
+            <p><strong>Уровень:</strong> {{ course.get_level_display }}</p>
+            {% if course.instructor %}
+            <p><strong>Преподаватель:</strong> {{ course.instructor.full_name }}</p>
+            {% endif %}
+            <p><strong>Цена:</strong> 
+                {% if course.price > 0 %}
+                    {{ course.price }} руб.
+                {% else %}
+                    Бесплатно
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="enrollment-form">
+        <h3>Запись на курс</h3>
+        
+        {% if students %}
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="student_id">Выберите студента:</label>
+                <select id="student_id" name="student_id" class="form-control" required>
+                    <option value="">-- Выберите студента --</option>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">
+                        {{ student.first_name }} {{ student.last_name }} ({{ student.email }}) - {{ student.get_faculty_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="enroll-button">Записаться на курс</button>
+        </form>
+        
+        <div style="margin-top: 20px; padding: 15px; background-color: #e8f4fd; border-radius: 5px;">
+            <p><strong>Не нашли себя в списке?</strong></p>
+            <p>Пройдите <a href="{% url 'register' %}" style="color: #3498db; font-weight: bold;">регистрацию</a> как студент.</p>
+        </div>
+        
+        {% else %}
+        <div class="error-message">
+            <p>Нет зарегистрированных студентов.</p>
+            <p>Пожалуйста, сначала <a href="{% url 'register' %}" style="color: #3498db; font-weight: bold;">зарегистрируйтесь</a> как студент.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top: 20px; text-align: center;">
+    <a href="{% url 'course_list' %}" class="back-link">← Вернуться к списку курсов</a>
+</div>
+{% endblock %}

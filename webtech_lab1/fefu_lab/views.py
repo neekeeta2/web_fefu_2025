@@ -4,67 +4,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from django.views.decorators.csrf import csrf_protect
 from .forms import FeedbackForm, RegistrationForm, LoginForm
-from .models import UserProfile, Feedback
-
-# def home_page(request):
-#     return HttpResponse("Добро пожаловать на главную страницу!")
-
-# def about_page(request):
-#     return HttpResponse("Страница о нас:")
-
-# def student_profile(request, student_id):
-#     if student_id > 100:
-#         raise Http404("Студент не найден")
-#     return HttpResponse(f"Профиль студента с ID: {student_id}")
-
-# def course_detail(request, course_slug):
-#     return HttpResponse(f"Информация о курсе: {course_slug}")
-
-
-STUDENTS_DATA = {
-    1: {
-        'info': 'Иван Петров',
-        'faculty': 'Кибербезопасность',
-        'status': 'Активный',
-        'year': 3
-    },
-    2: {
-        'info': 'Мария Сидорова', 
-        'faculty': 'Информатика',
-        'status': 'Активный',
-        'year': 2
-    },
-    3: {
-        'info': 'Алексей Козлов',
-        'faculty': 'Программная инженерия', 
-        'status': 'Выпускник',
-        'year': 5
-    }
-}
-
-COURSES_DATA = {
-    'python-basics': {
-        'name': 'Основы программирования на Python',
-        'duration': 36,
-        'description': 'Базовый курс по программированию на языке Python для начинающих.',
-        'instructor': 'Доцент Петров И.С.',
-        'level': 'Начальный'
-    },
-    'web-security': {
-        'name': 'Веб-безопасность',
-        'duration': 48,
-        'description': 'Курс по защите веб-приложений от современных угроз.',
-        'instructor': 'Профессор Сидоров А.В.',
-        'level': 'Продвинутый'
-    },
-    'network-defense': {
-        'name': 'Защита сетей',
-        'duration': 42,
-        'description': 'Изучение методов и технологий защиты компьютерных сетей.',
-        'instructor': 'Доцент Козлова М.П.',
-        'level': 'Средний'
-    }
-}
+from .models import UserProfile, Feedback, Instructor, Course, Enrollment, Student
+from django.db import IntegrityError
 
 # Существующие представления
 def home(request):
@@ -78,37 +19,6 @@ def about(request):
         'title': 'О нас',
         'heading': 'О нашей образовательной платформе'
     })
-
-def student_profile(request, student_id):
-    if student_id in STUDENTS_DATA:
-        student_data = STUDENTS_DATA[student_id]
-        return render(request, 'fefu_lab/student_profile.html', {
-            'title': f'Студент {student_id}',
-            'heading': f'Профиль студента',
-            'student_id': student_id,
-            'student_info': student_data['info'],
-            'faculty': student_data['faculty'],
-            'status': student_data['status'],
-            'year': student_data['year']
-        })
-    else:
-        raise Http404("Студент с таким ID не найден")
-
-def course_detail(request, course_slug):
-    if course_slug in COURSES_DATA:
-        course_data = COURSES_DATA[course_slug]
-        return render(request, 'fefu_lab/course_detail.html', {
-            'title': course_data['name'],
-            'heading': course_data['name'],
-            'course_slug': course_slug,
-            'course_name': course_data['name'],
-            'duration': course_data['duration'],
-            'description': course_data['description'],
-            'instructor': course_data['instructor'],
-            'level': course_data['level']
-        })
-    else:
-        raise Http404("Курс не найден")
 
 # Новые представления для форм
 @csrf_protect
@@ -137,28 +47,60 @@ def feedback_view(request):
         'form': form
     })
 
+
+
+# @csrf_protect
+# def register_view(request):
+#     if request.method == 'POST':
+#         form = RegistrationForm(request.POST)
+#         if form.is_valid():
+#             # Создаем пользователя
+#             UserProfile.objects.create(
+#                 username=form.cleaned_data['username'],
+#                 email=form.cleaned_data['email'],
+#                 password=form.cleaned_data['password']  # В реальном проекте хешируйте пароль!
+#             )
+#             return render(request, 'fefu_lab/success.html', {
+#                 'title': 'Регистрация',
+#                 'heading': 'Регистрация завершена',
+#                 'message': 'Поздравляем! Вы успешно зарегистрировались в системе.'
+#             })
+#     else:
+#         form = RegistrationForm()
+    
+#     return render(request, 'fefu_lab/register.html', {
+#         'title': 'Регистрация',
+#         'heading': 'Форма регистрации',
+#         'form': form
+#     })
+
+
+
 @csrf_protect
 def register_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            # Создаем пользователя
-            UserProfile.objects.create(
-                username=form.cleaned_data['username'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password']  # В реальном проекте хешируйте пароль!
-            )
-            return render(request, 'fefu_lab/success.html', {
-                'title': 'Регистрация',
-                'heading': 'Регистрация завершена',
-                'message': 'Поздравляем! Вы успешно зарегистрировались в системе.'
-            })
+            try:
+                # Создаем студента (пароль не сохраняем в этой модели)
+                student = form.save()
+                
+                return render(request, 'fefu_lab/success.html', {
+                    'title': 'Регистрация',
+                    'heading': 'Регистрация завершена',
+                    'message': f'Поздравляем, {student.first_name}! Вы успешно зарегистрировались как студент.'
+                })
+            except IntegrityError as e:
+                if 'email' in str(e):
+                    form.add_error('email', 'Студент с таким email уже существует')
+                else:
+                    form.add_error(None, 'Произошла ошибка при регистрации')
     else:
         form = RegistrationForm()
     
     return render(request, 'fefu_lab/register.html', {
         'title': 'Регистрация',
-        'heading': 'Форма регистрации',
+        'heading': 'Регистрация студента',
         'form': form
     })
 
@@ -180,4 +122,144 @@ def login_view(request):
         'title': 'Вход в систему',
         'heading': 'Вход в систему',
         'form': form
+    })
+
+
+
+@csrf_protect
+def instructor_list(request):
+    instructors = Instructor.objects.all()
+    return render(request, 'fefu_lab/instructor_list.html', {
+        'title': 'Преподаватели',
+        'heading': 'Наши преподаватели',
+        'instructors': instructors,
+    })
+
+
+
+@csrf_protect
+def course_list(request):
+    courses = Course.objects.all()
+    return render(request, 'fefu_lab/course_list.html', {
+        'title': 'Курсы',
+        'heading': 'Наши курсы', 
+        'courses': courses,
+    })
+
+
+
+# @csrf_protect
+# def enrollment_view(request, course_id):
+#     course = get_object_or_404(Course, id=course_id)
+    
+#     if request.method == 'POST':
+#         student_name = request.POST.get('student_name')
+#         student_email = request.POST.get('student_email')
+        
+#         if student_name and student_email:
+#             try:
+#                 # Создаем студента
+#                 student = Student.objects.create(
+#                     first_name=student_name.split()[0] if ' ' in student_name else student_name,
+#                     last_name=student_name.split()[1] if ' ' in student_name else '',
+#                     email=student_email,
+#                     faculty='CS'
+#                 )
+                
+#                 # Записываем на курс
+#                 Enrollment.objects.create(
+#                     student=student,
+#                     course=course,
+#                     status='ACTIVE'
+#                 )
+                
+#                 return render(request, 'fefu_lab/success.html', {
+#                     'title': 'Запись на курс',
+#                     'heading': 'Запись успешна!',
+#                     'message': f'{student_name}, вы успешно записаны на курс "{course.title}"!'
+#                 })
+                
+#             except IntegrityError:
+#                 return render(request, 'fefu_lab/enrollment.html', {
+#                     'title': f'Запись на курс: {course.title}',
+#                     'heading': f'Запись на курс: {course.title}',
+#                     'course': course,
+#                     'error': 'Студент с таким email уже существует'
+#                 })
+    
+#     return render(request, 'fefu_lab/enrollment.html', {
+#         'title': f'Запись на курс: {course.title}',
+#         'heading': f'Запись на курс: {course.title}',
+#         'course': course,
+#     })
+
+
+
+@csrf_protect
+def enrollment_view(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    students = Student.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        
+        if student_id:
+            try:
+                student = Student.objects.get(id=student_id)
+                
+                # Проверяем, не записан ли уже студент на этот курс
+                if Enrollment.objects.filter(student=student, course=course).exists():
+                    return render(request, 'fefu_lab/enrollment.html', {
+                        'title': f'Запись на курс: {course.title}',
+                        'heading': f'Запись на курс: {course.title}',
+                        'course': course,
+                        'students': students,
+                        'error': f'{student.first_name} уже записан на этот курс'
+                    })
+                
+                # Записываем на курс
+                Enrollment.objects.create(
+                    student=student,
+                    course=course,
+                    status='ACTIVE'
+                )
+                
+                return render(request, 'fefu_lab/success.html', {
+                    'title': 'Запись на курс',
+                    'heading': 'Запись успешна!',
+                    'message': f'{student.first_name} {student.last_name}, вы успешно записаны на курс "{course.title}"!'
+                })
+                
+            except Student.DoesNotExist:
+                return render(request, 'fefu_lab/enrollment.html', {
+                    'title': f'Запись на курс: {course.title}',
+                    'heading': f'Запись на курс: {course.title}',
+                    'course': course,
+                    'students': students,
+                    'error': 'Студент не найден'
+                })
+        else:
+            return render(request, 'fefu_lab/enrollment.html', {
+                'title': f'Запись на курс: {course.title}',
+                'heading': f'Запись на курс: {course.title}',
+                'course': course,
+                'students': students,
+                'error': 'Пожалуйста, выберите студента'
+            })
+    
+    return render(request, 'fefu_lab/enrollment.html', {
+        'title': f'Запись на курс: {course.title}',
+        'heading': f'Запись на курс: {course.title}',
+        'course': course,
+        'students': students,
+    })
+
+
+
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'fefu_lab/student_list.html', {
+        'title': 'Студенты',
+        'heading': 'Наши студенты',
+        'students': students,
     })

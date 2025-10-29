@@ -1,0 +1,33 @@
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}Преподаватели{% endblock %}
+{% block heading %}Наши преподаватели{% endblock %}
+
+{% block content %}
+<div class="instructor-list">
+    {% for instructor in instructors %}
+    <div class="instructor-card">
+        <h3>{{ instructor.full_name }}</h3>
+        <div class="instructor-details">
+            <p><strong>Специализация:</strong> {{ instructor.specialization }}</p>
+            <p><strong>Email:</strong> {{ instructor.email }}</p>
+            {% if instructor.degree %}
+            <p><strong>Ученая степень:</strong> {{ instructor.degree }}</p>
+            {% endif %}
+            <p><strong>Статус:</strong> 
+                {% if instructor.is_active %}
+                    <span class="status-active">Активен</span>
+                {% else %}
+                    <span class="status-inactive">Неактивен</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% empty %}
+    <div class="instructor-card">
+        <p>Преподаватели пока не добавлены.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

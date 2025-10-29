@@ -1,0 +1,46 @@
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}Студенты{% endblock %}
+{% block heading %}Наши студенты{% endblock %}
+
+{% block content %}
+<div class="student-list">
+    {% for student in students %}
+    <div class="student-card">
+        <h3>{{ student.first_name }} {{ student.last_name }}</h3>
+        <div class="student-details">
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Факультет:</strong> {{ student.get_faculty_display }}</p>
+            {% if student.birth_date %}
+            <p><strong>Дата рождения:</strong> {{ student.birth_date }}</p>
+            {% endif %}
+            <p><strong>Дата регистрации:</strong> {{ student.created_at|date:"d.m.Y" }}</p>
+            <p><strong>Статус:</strong> 
+                <span class="{% if student.is_active %}status-active{% else %}status-inactive{% endif %}">
+                    {{ student.is_active|yesno:"Активен,Неактивен" }}
+                </span>
+            </p>
+            
+            <div class="student-courses">
+                <strong>Записан на курсы:</strong>
+                {% with enrollments=student.enrollment_set.all %}
+                    {% if enrollments %}
+                        <ul>
+                        {% for enrollment in enrollments %}
+                            <li>{{ enrollment.course.title }} ({{ enrollment.get_status_display }})</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Не записан на курсы</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="student-card">
+        <p>Студенты пока не зарегистрированы.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
