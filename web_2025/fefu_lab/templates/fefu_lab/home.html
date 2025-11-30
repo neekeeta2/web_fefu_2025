@@ -1,0 +1,23 @@
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}Главная страница{% endblock %}
+{% block heading %}Добро пожаловать на главную страницу!{% endblock %}
+
+{% block content %}
+<p>Это учебное приложение для лабораторных работ по веб-технологиям.</p>
+
+<div class="student-info">
+    <h3>Быстрые ссылки:</h3>
+    <ul>
+        <li><a href="/student/1/">Иван Петров</a></li>
+        <li><a href="/student/2/">Мария Сидорова</a></li>
+        <li><a href="/student/3/">Алексей Козлов</a></li>
+    </ul>
+    
+    <h3>Популярные курсы:</h3>
+    <ul>
+        <li><a href="/course/python-basics/">Python Basics</a></li>
+        <li><a href="/course/web-development/">Web Development</a></li>
+    </ul>
+</div>
+{% endblock %}
