@@ -127,3 +127,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+
+# Настройки аутентификации
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/profile/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Настройки сессии
+SESSION_COOKIE_AGE = 1209600  # 2 недели
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Безопасность (в продакшене должно быть True)
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# Кастомные бэкенды аутентификации
+AUTHENTICATION_BACKENDS = [
+    'fefu_lab.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Настройки для загрузки файлов
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+TEACHER_INVITATION_CODE = "fefu2024"
+ADMIN_REGISTRATION_KEY = "superadmin2024"
+
+# Настройка миграций для работы с абстрактными моделями
+MIGRATION_MODULES = {
+    'fefu_lab': 'fefu_lab.migrations',
+}

@@ -1,0 +1,115 @@
+{% extends 'fefu_lab/base.html' %}
+
+{% block title %}Личный кабинет преподавателя{% endblock %}
+{% block heading %}Личный кабинет преподавателя{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-sidebar">
+        <div class="profile-card">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="Аватар" class="profile-avatar">
+            {% else %}
+                <div class="no-avatar">Нет аватара</div>
+            {% endif %}
+            <h3>{{ profile.full_name }}</h3>
+            <p class="profile-email">{{ profile.email }}</p>
+            <p><strong>Роль:</strong> {{ profile.get_role_display_name }}</p>
+            {% if instructor %}
+                <p><strong>Специализация:</strong> {{ instructor.specialization }}</p>
+                <p><strong>Степень:</strong> {{ instructor.degree }}</p>
+            {% endif %}
+            <a href="{% url 'profile_edit' %}" class="btn-edit">Редактировать профиль</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="courses-section">
+            <h3>Мои курсы <span class="badge">{{ courses_with_enrollments|length }} курс(ов)</span></h3>
+            
+            {% if courses_with_enrollments %}
+                <div class="courses-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Название курса</th>
+                                <th>Уровень</th>
+                                <th>Студентов</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course_data in courses_with_enrollments %}
+                                {% with course=course_data.course enrollments=course_data.enrollments %}
+                                <tr>
+                                    <td>{{ course.title }}</td>
+                                    <td>
+                                        <span class="level-badge level-{{ course.level|lower }}">
+                                            {{ course.get_level_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ course.enrolled_students_count }} / {{ course.max_students }}
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ course.is_active|yesno:'active,inactive' }}">
+                                            {% if course.is_active %}Активен{% else %}Не активен{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'course_detail' course.slug %}" class="btn-small">Просмотр</a>
+                                        {% if enrollments %}
+                                            <button class="btn-small btn-info" onclick="toggleStudents('{{ course.id }}')">
+                                                Студенты ({{ enrollments|length }})
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if enrollments %}
+                                    <tr id="students-{{ course.id }}" class="students-row" style="display: none;">
+                                        <td colspan="5">
+                                            <div class="students-list">
+                                                <h4>Студенты на курсе "{{ course.title }}":</h4>
+                                                <ul>
+                                                    {% for enrollment in enrollments %}
+                                                        <li>
+                                                            {{ enrollment.student.full_name }}
+                                                            <span class="student-email">{{ enrollment.student.email }}</span>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="no-courses">
+                    <p>У вас нет активных курсов для преподавания</p>
+                    <p><small>Обратитесь к администратору для назначения курсов</small></p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили остаются такими же, как в предыдущем примере */
+</style>
+
+<script>
+function toggleStudents(courseId) {
+    var row = document.getElementById('students-' + courseId);
+    if (row.style.display === 'none' || row.style.display === '') {
+        row.style.display = 'table-row';
+    } else {
+        row.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

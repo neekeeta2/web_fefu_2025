@@ -1,0 +1,177 @@
+{% extends 'fefu_lab/base.html' %}
+
+{% block title %}Редактирование профиля{% endblock %}
+{% block heading %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<div class="profile-edit-container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="profile-section">
+            <h3>Основная информация</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Имя:</label>
+                    <input type="text" value="{{ user.first_name }}" readonly class="readonly-field">
+                </div>
+                <div class="form-group">
+                    <label>Фамилия:</label>
+                    <input type="text" value="{{ user.last_name }}" readonly class="readonly-field">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" value="{{ user.email }}" readonly class="readonly-field">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_birth_date">Дата рождения:</label>
+                    {{ form.birth_date }}
+                </div>
+                <div class="form-group">
+                    <label for="id_faculty">Факультет:</label>
+                    {{ form.faculty }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h3>Контактная информация</h3>
+            <div class="form-group">
+                <label for="id_phone">Телефон:</label>
+                {{ form.phone }}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h3>О себе</h3>
+            <div class="form-group">
+                <label for="id_bio">Биография:</label>
+                {{ form.bio }}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h3>Аватар</h3>
+            <div class="avatar-section">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="Текущий аватар" class="current-avatar">
+                {% else %}
+                    <div class="no-avatar">Нет аватара</div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="id_avatar">Загрузить новый аватар:</label>
+                    {{ form.avatar }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Сохранить изменения</button>
+            <a href="{% url 'profile' %}" class="btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.profile-edit-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.profile-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+.profile-section h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.form-group {
+    margin-bottom: 15px;
+    flex: 1;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.readonly-field {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+.avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.current-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+}
+.no-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border: 3px solid #ddd;
+}
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 30px;
+}
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-primary:hover {
+    background: #0056b3;
+}
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-secondary:hover {
+    background: #545b62;
+}
+</style>
+{% endblock %}

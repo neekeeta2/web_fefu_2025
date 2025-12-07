@@ -1,0 +1,58 @@
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <div class="error">
+                        {% for error in field.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn">Записаться на курс</button>
+    </form>
+</div>
+
+<div class="available-courses">
+    <h3>Доступные курсы:</h3>
+    <div class="courses-grid">
+        {% for course_info in courses_with_info %}
+        <div class="course-card">
+            <h4>{{ course_info.course.title }}</h4>
+            <p><strong>Преподаватель:</strong> 
+                {% if course_info.course.instructor %}
+                    {{ course_info.course.instructor.full_name }}
+                {% else %}
+                    Не назначен
+                {% endif %}
+            </p>
+            <p><strong>Продолжительность:</strong> {{ course_info.course.duration }} часов</p>
+            <p><strong>Уровень:</strong> {{ course_info.course.get_level_display }}</p>
+            <p><strong>Стоимость:</strong> 
+                {% if course_info.course.price > 0 %}
+                    {{ course_info.course.price }} руб.
+                {% else %}
+                    Бесплатно
+                {% endif %}
+            </p>
+            <p><strong>Свободных мест:</strong> {{ course_info.available_slots }}/{{ course_info.course.max_students }}</p>
+        </div>
+        {% empty %}
+        <p>Нет доступных курсов.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

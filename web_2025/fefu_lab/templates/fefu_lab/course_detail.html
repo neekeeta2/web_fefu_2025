@@ -1,13 +1,53 @@
 {% extends "fefu_lab/base.html" %}
 
-{% block title %}Курс {{ course_name }}{% endblock %}
-{% block heading %}{{ course_name }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}{{ course.title }}{% endblock %}
 
 {% block content %}
 <div class="course-info">
-    <p><strong>Продолжительность:</strong> {{ duration }} часов</p>
-    <p><strong>Уровень:</strong> {{ level }}</p>
-    <p><strong>Преподаватель:</strong> {{ instructor }}</p>
-    <p><strong>Описание:</strong> {{ description }}</p>
+    <div class="info-section">
+        <h3>Описание курса</h3>
+        <p>{{ course.description|linebreaks }}</p>
+        
+        <div class="course-details">
+            <p><strong>Продолжительность:</strong> {{ course.duration }} часов</p>
+            <p><strong>Уровень:</strong> {{ course.get_level_display }}</p>
+            <p><strong>Преподаватель:</strong> 
+                {% if course.instructor %}
+                    {{ course.instructor.full_name }} ({{ course.instructor.specialization }})
+                {% else %}
+                    Не назначен
+                {% endif %}
+            </p>
+            <p><strong>Максимальное количество студентов:</strong> {{ course.max_students }}</p>
+            <p><strong>Текущее количество студентов:</strong> {{ course.enrolled_students_count }}</p>
+            <p><strong>Стоимость:</strong> 
+                {% if course.price > 0 %}
+                    {{ course.price }} руб.
+                {% else %}
+                    Бесплатно
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if enrollments %}
+    <div class="info-section">
+        <h3>Записанные студенты</h3>
+        <div class="students-list">
+            {% for enrollment in enrollments %}
+            <div class="student-item">
+                <strong>{{ enrollment.student.full_name }}</strong>
+                <span>Записан: {{ enrollment.enrolled_at|date:"d.m.Y" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="info-section">
+        <a href="{% url 'enrollment' %}" class="btn">Записаться на этот курс</a>
+        <a href="{% url 'course_list' %}" class="btn btn-secondary">Вернуться к списку курсов</a>
+    </div>
 </div>
 {% endblock %}

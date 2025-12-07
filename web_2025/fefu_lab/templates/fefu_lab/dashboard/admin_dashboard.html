@@ -1,0 +1,203 @@
+{% extends 'fefu_lab/base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+{% block heading %}Панель администратора{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-sidebar">
+        <div class="profile-card">
+            {% if admin.avatar %}
+                <img src="{{ admin.avatar.url }}" alt="Аватар" class="profile-avatar">
+            {% else %}
+                <div class="no-avatar">Нет аватара</div>
+            {% endif %}
+            <h3>{{ admin.full_name }}</h3>
+            <p class="profile-email">{{ admin.email }}</p>
+            <p><strong>Роль:</strong> {{ admin.get_role_display_name }}</p>
+            <a href="/admin/" class="btn-admin" target="_blank">Админка Django</a>
+            <a href="{% url 'profile_edit' %}" class="btn-edit">Редактировать профиль</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="stats-section">
+            <h3>Общая статистика системы</h3>
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <div class="stat-number">{{ total_students }}</div>
+                    <div class="stat-label">Студентов</div>
+                </div>
+                <div class="stat-card stat-success">
+                    <div class="stat-number">{{ total_teachers }}</div>
+                    <div class="stat-label">Преподавателей</div>
+                </div>
+                <div class="stat-card stat-info">
+                    <div class="stat-number">{{ total_courses }}</div>
+                    <div class="stat-label">Курсов</div>
+                </div>
+                <div class="stat-card stat-warning">
+                    <div class="stat-number">{{ total_enrollments }}</div>
+                    <div class="stat-label">Записей на курсы</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <h3>Быстрые действия</h3>
+            <div class="actions-grid">
+                <a href="/admin/fefu_lab/student/" class="action-card">
+                    <div class="action-icon">👥</div>
+                    <h4>Управление пользователями</h4>
+                    <p>Добавление, редактирование, блокировка пользователей</p>
+                </a>
+                <a href="/admin/fefu_lab/course/" class="action-card">
+                    <div class="action-icon">📚</div>
+                    <h4>Управление курсами</h4>
+                    <p>Создание и редактирование курсов, назначение преподавателей</p>
+                </a>
+                <a href="/admin/fefu_lab/enrollment/" class="action-card">
+                    <div class="action-icon">📝</div>
+                    <h4>Записи на курсы</h4>
+                    <p>Просмотр и управление записями студентов на курсы</p>
+                </a>
+                <a href="/admin/fefu_lab/instructor/" class="action-card">
+                    <div class="action-icon">👨‍🏫</div>
+                    <h4>Управление преподавателями</h4>
+                    <p>Добавление и редактирование преподавателей</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+.dashboard-sidebar {
+    flex: 0 0 300px;
+}
+.dashboard-content {
+    flex: 1;
+}
+.profile-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 15px;
+    border: 3px solid #dc3545;
+}
+.no-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    color: #666;
+    border: 3px solid #ddd;
+}
+.profile-email {
+    color: #666;
+    margin: 10px 0;
+}
+.btn-admin {
+    display: inline-block;
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin: 5px;
+}
+.btn-edit {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin: 5px;
+}
+.stats-section, .actions-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+.stat-card {
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+}
+.stat-primary { background: #007bff; }
+.stat-success { background: #28a745; }
+.stat-info { background: #17a2b8; }
+.stat-warning { background: #ffc107; color: #212529; }
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+.action-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s;
+    display: block;
+}
+.action-card:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.action-icon {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+.action-card h4 {
+    margin: 10px 0;
+    color: #007bff;
+}
+.action-card p {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+</style>
+{% endblock %}

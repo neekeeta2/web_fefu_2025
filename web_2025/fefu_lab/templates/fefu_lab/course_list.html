@@ -1,0 +1,34 @@
+{% extends "fefu_lab/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="courses-grid">
+    {% for course in courses %}
+    <div class="course-card">
+        <h3>{{ course.title }}</h3>
+        <p><strong>Преподаватель:</strong> 
+            {% if course.instructor %}
+                {{ course.instructor.full_name }}
+            {% else %}
+                Не назначен
+            {% endif %}
+        </p>
+        <p><strong>Продолжительность:</strong> {{ course.duration }} часов</p>
+        <p><strong>Уровень:</strong> {{ course.get_level_display }}</p>
+        <p><strong>Стоимость:</strong> 
+            {% if course.price > 0 %}
+                {{ course.price }} руб.
+            {% else %}
+                Бесплатно
+            {% endif %}
+        </p>
+        <p><strong>Записанно студентов:</strong> {{ course.enrolled_students_count }}/{{ course.max_students }}</p>
+        <a href="{% url 'course_detail' course.slug %}" class="btn">Подробнее</a>
+    </div>
+    {% empty %}
+    <p>Нет доступных курсов.</p>
+    {% endfor %}
+</div>
+{% endblock %}
