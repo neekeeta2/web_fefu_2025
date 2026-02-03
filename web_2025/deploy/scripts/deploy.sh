@@ -137,4 +137,4 @@ if systemctl list-unit-files | grep -q nginx.service; then
 fi
 
 echo ""
-echo " DONE → http://192.168.1.125:8000"  # ← ИСПРАВЛЕНО IP
+echo "DONE → http://192.168.1.125:8000"  # ← ИСПРАВЛЕНО IP
