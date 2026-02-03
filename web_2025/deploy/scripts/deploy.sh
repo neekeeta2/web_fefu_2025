@@ -6,7 +6,7 @@ echo "=== FEFU Lab Deploy ==="
 # Postgres
 # ======================
 echo "Postgres..."
-sudo -u postgres psql -c "CREATE USER fefu_user WITH PASSWORD 'strongpassword';" 2>/dev/null || true
+sudo -u postgres psql -c "CREATE USER fefu_user WITH PASSWORD '1234';" 2>/dev/null || true
 sudo -u postgres psql -c "ALTER USER fefu_user CREATEDB;" 2>/dev/null || true
 sudo -u postgres createdb -O fefu_user fefu_lab_db 2>/dev/null || true
 
