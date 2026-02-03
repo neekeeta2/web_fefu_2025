@@ -1,64 +1,140 @@
+# #!/bin/bash
+
+# echo "=== FEFU Lab Deploy ==="
+
+# # ======================
+# # Postgres
+# # ======================
+# echo "Postgres..."
+# sudo -u postgres psql -c "CREATE USER fefu_user WITH PASSWORD '1234';" 2>/dev/null || true
+# sudo -u postgres psql -c "ALTER USER fefu_user CREATEDB;" 2>/dev/null || true
+# sudo -u postgres createdb -O fefu_user fefu_lab_db 2>/dev/null || true
+
+
+# # ======================
+# # Dirs
+# # ======================
+# echo "Dirs..."
+# sudo mkdir -p /run/gunicorn
+# sudo mkdir -p /var/www/fefu_lab/web_2025/staticfiles
+# sudo mkdir -p /var/www/fefu_lab/web_2025/media
+
+# sudo chown -R www-data:www-data /run/gunicorn /var/www/fefu_lab/web_2025
+# sudo chmod -R 755 /var/www/fefu_lab/web_2025
+
+
+# # ======================
+# # Django
+# # ======================
+# echo "Migrations..."
+# source venv/bin/activate
+# python manage.py migrate
+# python manage.py collectstatic --noinput
+
+
+# # ======================
+# # Configs
+# # ======================
+# echo "Configs..."
+# sudo cp deploy/nginx/fefu_lab.conf /etc/nginx/sites-available/
+# sudo ln -sf /etc/nginx/sites-available/fefu_lab.conf /etc/nginx/sites-enabled/
+# sudo rm -f /etc/nginx/sites-enabled/default
+
+# sudo cp deploy/systemd/gunicorn.service /etc/systemd/system/
+
+
+# # ======================
+# # Restart
+# # ======================
+# echo "Restart..."
+# sudo systemctl daemon-reload
+# sudo systemctl enable gunicorn
+# sudo systemctl restart gunicorn
+# sudo systemctl restart nginx
+
+
+# # ======================
+# # Status
+# # ======================
+# echo ""
+# systemctl status gunicorn --no-pager | head -5
+# systemctl status nginx --no-pager | head -5
+
+# echo ""
+# echo " DONE → http://192.168.1.125
+
+
 #!/bin/bash
 
 echo "=== FEFU Lab Deploy ==="
 
 # ======================
-# Postgres
+# Postgres (если нужно)
 # ======================
 echo "Postgres..."
 sudo -u postgres psql -c "CREATE USER fefu_user WITH PASSWORD '1234';" 2>/dev/null || true
 sudo -u postgres psql -c "ALTER USER fefu_user CREATEDB;" 2>/dev/null || true
 sudo -u postgres createdb -O fefu_user fefu_lab_db 2>/dev/null || true
 
-
 # ======================
 # Dirs
 # ======================
 echo "Dirs..."
 sudo mkdir -p /run/gunicorn
-sudo mkdir -p /var/www/fefu_lab/web_2025/staticfiles
-sudo mkdir -p /var/www/fefu_lab/web_2025/media
+sudo mkdir -p /var/www/web_fefu_2025/web_2025/staticfiles  # ← ИСПРАВЛЕНО
+sudo mkdir -p /var/www/web_fefu_2025/web_2025/media        # ← ИСПРАВЛЕНО
 
-sudo chown -R www-data:www-data /run/gunicorn /var/www/fefu_lab/web_2025
-sudo chmod -R 755 /var/www/fefu_lab/web_2025
-
+sudo chown -R www-data:www-data /run/gunicorn /var/www/web_fefu_2025  # ← ИСПРАВЛЕНО
+sudo chmod -R 755 /var/www/web_fefu_2025                              # ← ИСПРАВЛЕНО
 
 # ======================
 # Django
 # ======================
 echo "Migrations..."
+cd /var/www/web_fefu_2025/web_2025  # ← ДОБАВЛЕНО
 source venv/bin/activate
 python manage.py migrate
 python manage.py collectstatic --noinput
 
-
 # ======================
-# Configs
+# Configs (если есть файлы)
 # ======================
 echo "Configs..."
-sudo cp deploy/nginx/fefu_lab.conf /etc/nginx/sites-available/
-sudo ln -sf /etc/nginx/sites-available/fefu_lab.conf /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
+if [ -f "deploy/nginx/fefu_lab.conf" ]; then
+    sudo cp deploy/nginx/fefu_lab.conf /etc/nginx/sites-available/
+    sudo ln -sf /etc/nginx/sites-available/fefu_lab.conf /etc/nginx/sites-enabled/
+    sudo rm -f /etc/nginx/sites-enabled/default
+fi
 
-sudo cp deploy/systemd/gunicorn.service /etc/systemd/system/
-
+if [ -f "deploy/systemd/gunicorn.service" ]; then
+    sudo cp deploy/systemd/gunicorn.service /etc/systemd/system/
+fi
 
 # ======================
-# Restart
+# Restart (если установлены)
 # ======================
 echo "Restart..."
-sudo systemctl daemon-reload
-sudo systemctl enable gunicorn
-sudo systemctl restart gunicorn
-sudo systemctl restart nginx
+if systemctl list-unit-files | grep -q gunicorn.service; then
+    sudo systemctl daemon-reload
+    sudo systemctl enable gunicorn
+    sudo systemctl restart gunicorn
+fi
 
+if systemctl list-unit-files | grep -q nginx.service; then
+    sudo systemctl restart nginx
+fi
 
 # ======================
 # Status
 # ======================
 echo ""
-systemctl status gunicorn --no-pager | head -5
-systemctl status nginx --no-pager | head -5
+if systemctl list-unit-files | grep -q gunicorn.service; then
+    systemctl status gunicorn --no-pager | head -5
+fi
+
+if systemctl list-unit-files | grep -q nginx.service; then
+    systemctl status nginx --no-pager | head -5
+fi
 
 echo ""
-echo " DONE → http://192.168.135.131
+echo " DONE → http://192.168.1.125:8000"  # ← ИСПРАВЛЕНО IP
