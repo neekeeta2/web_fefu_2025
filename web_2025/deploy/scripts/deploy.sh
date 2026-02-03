@@ -16,11 +16,11 @@ sudo -u postgres createdb -O fefu_user fefu_lab_db 2>/dev/null || true
 # ======================
 echo "Dirs..."
 sudo mkdir -p /run/gunicorn
-sudo mkdir -p /var/www/fefu_lab/staticfiles
-sudo mkdir -p /var/www/fefu_lab/media
+sudo mkdir -p /var/www/fefu_lab/web_2025/staticfiles
+sudo mkdir -p /var/www/fefu_lab/web_2025/media
 
-sudo chown -R www-data:www-data /run/gunicorn /var/www/fefu_lab
-sudo chmod -R 755 /var/www/fefu_lab
+sudo chown -R www-data:www-data /run/gunicorn /var/www/fefu_lab/web_2025
+sudo chmod -R 755 /var/www/fefu_lab/web_2025
 
 
 # ======================
