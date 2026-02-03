@@ -66,7 +66,7 @@
 
 #!/bin/bash
 
-echo "=== FEFU Lab Deploy ==="
+# echo "=== FEFU Lab Deploy ==="
 
 # ======================
 # Postgres (если нужно)
